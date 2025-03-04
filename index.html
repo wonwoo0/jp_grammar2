@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>助詞與疑問詞日文跟讀機</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+            background: #f0f8ff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .sentence {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+        .text {
+            text-align: left;
+            flex-grow: 1;
+        }
+        .jp {
+            font-size: 20px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        .zh {
+            font-size: 16px;
+            color: #777;
+        }
+        .kana {
+            font-size: 16px;
+            color: #999;
+            margin-top: 5px;
+        }
+        .play-btn, .slow-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .play-btn {
+            background: #007BFF;
+            color: white;
+        }
+        .play-btn:hover {
+            background: #0056b3;
+        }
+        .slow-btn {
+            background: #ff5733;
+            color: white;
+        }
+        .slow-btn:hover {
+            background: #e04e2b;
+        }
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        @media (max-width: 768px) {
+            .sentence {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .text {
+                margin-bottom: 10px;
+                width: 100%;
+            }
+            .buttons {
+                flex-direction: row;
+                align-items: center;
+                width: 100%;
+                justify-content: flex-end;
+            }
+            .play-btn, .slow-btn {
+                margin-left: 10px;
+                margin-bottom: 0;
+                width: auto;
+            }
+        }
+        .pagination {
+            margin-top: 20px;
+        }
+        .pagination button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        .pagination button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .pagination button:hover:not(:disabled) {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>助詞與疑問詞日文跟讀機</h1>
+        <div id="sentences"></div>
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <script>
+        const sentences = [
+            { jp: "雨が降るので傘を持った。", kana: "あめがふるのでかさをもった。", zh: "因為下雨，所以我帶了傘。", audio: "audio/sentence_1.mp3", slowAudio: "audio/slow/sentence_1.mp3" },
+            { jp: "疲れたので寝るよ。", kana: "つかれたのでねるよ。", zh: "因為累了，所以我要睡覺哦。", audio: "audio/sentence_2.mp3", slowAudio: "audio/slow/sentence_2.mp3" },
+            { jp: "時間がないので急ぐ。", kana: "じかんがないのでいそぐ。", zh: "因為沒時間，所以我得趕快。", audio: "audio/sentence_3.mp3", slowAudio: "audio/slow/sentence_3.mp3" },
+            { jp: "りんごやみかんを買う。", kana: "りんごやみかんをかう。", zh: "我買蘋果和橘子。", audio: "audio/sentence_4.mp3", slowAudio: "audio/slow/sentence_4.mp3" },
+            { jp: "犬や猫が好きだ。", kana: "いぬやねこがすきだ。", zh: "我喜歡狗和貓。", audio: "audio/sentence_5.mp3", slowAudio: "audio/slow/sentence_5.mp3" },
+            { jp: "本やノートを忘れた。", kana: "ほんやのーとをわすれた。", zh: "我忘了帶書和筆記本。", audio: "audio/sentence_6.mp3", slowAudio: "audio/slow/sentence_6.mp3" },
+            { jp: "ケーキやパンなど食べる。", kana: "けーきやパンなどたべる。", zh: "我吃蛋糕、麵包之類的東西。", audio: "audio/sentence_7.mp3", slowAudio: "audio/slow/sentence_7.mp3" },
+            { jp: "傘やカバンなど持つ。", kana: "かさやかばんなどもつ。", zh: "我帶傘、包之類的東西。", audio: "audio/sentence_8.mp3", slowAudio: "audio/slow/sentence_8.mp3" },
+            { jp: "犬や鳥など飼うよ。", kana: "いぬやとりなどかうよ。", zh: "我養狗、鳥之類的動物哦。", audio: "audio/sentence_9.mp3", slowAudio: "audio/slow/sentence_9.mp3" },
+            { jp: "友達の本だ。", kana: "ともだちのほんだ。", zh: "這是朋友的書。", audio: "audio/sentence_10.mp3", slowAudio: "audio/slow/sentence_10.mp3" },
+            { jp: "学校の先生が来た。", kana: "がっこうのせんせいがきた。", zh: "學校的老師來了。", audio: "audio/sentence_11.mp3", slowAudio: "audio/slow/sentence_11.mp3" },
+            { jp: "犬の名前はポチだ。", kana: "いぬのなまえはポチだ。", zh: "狗的名字是小波。", audio: "audio/sentence_12.mp3", slowAudio: "audio/slow/sentence_12.mp3" },
+            { jp: "机の上が汚い。", kana: "つくえのうえがきたない。", zh: "桌面上很髒。", audio: "audio/sentence_13.mp3", slowAudio: "audio/slow/sentence_13.mp3" },
+            { jp: "日本の文化が好き。", kana: "にほんのぶんかがすき。", zh: "我喜歡日本的文化。", audio: "audio/sentence_14.mp3", slowAudio: "audio/slow/sentence_14.mp3" },
+            { jp: "友達の家に行く。", kana: "ともだちのいえにいく。", zh: "我去朋友家。", audio: "audio/sentence_15.mp3", slowAudio: "audio/slow/sentence_15.mp3" },
+            { jp: "猫は好きだが犬は嫌い。", kana: "ねこはすきだがいぬはきらい。", zh: "我喜歡貓，但不喜歡狗。", audio: "audio/sentence_16.mp3", slowAudio: "audio/slow/sentence_16.mp3" },
+            { jp: "彼は優しいが私は厳しい。", kana: "かれはやさしいがわたしはきびしい。", zh: "他很親切，但我很嚴格。", audio: "audio/sentence_17.mp3", slowAudio: "audio/slow/sentence_17.mp3" },
+            { jp: "朝は忙しいが夜は暇だ。", kana: "あさはいそがしいがよるはひまだ。", zh: "早上很忙，但晚上很閒。", audio: "audio/sentence_18.mp3", slowAudio: "audio/slow/sentence_18.mp3" },
+            { jp: "誰も来ないよ。", kana: "だれもこないよ。", zh: "沒有人來哦。", audio: "audio/sentence_19.mp3", slowAudio: "audio/slow/sentence_19.mp3" },
+            { jp: "何も食べなかった。", kana: "なにもたべなかった。", zh: "我什麼也沒吃。", audio: "audio/sentence_20.mp3", slowAudio: "audio/slow/sentence_20.mp3" },
+            { jp: "どこも開いてない。", kana: "どこもちあいてない。", zh: "哪裡都沒開。", audio: "audio/sentence_21.mp3", slowAudio: "audio/slow/sentence_21.mp3" },
+            { jp: "5分くらい待つ。", kana: "ごふんくらいまつ。", zh: "我等大概 5 分鐘。", audio: "audio/sentence_22.mp3", slowAudio: "audio/slow/sentence_22.mp3" },
+            { jp: "1時間くらい歩いた。", kana: "いちじかんくらいあるいた。", zh: "我走了大概 1 小時。", audio: "audio/sentence_23.mp3", slowAudio: "audio/slow/sentence_23.mp3" },
+            { jp: "朝10時くらい起きる。", kana: "あさじゅうじくらいおきる。", zh: "我早上大概 10 點起床。", audio: "audio/sentence_24.mp3", slowAudio: "audio/slow/sentence_24.mp3" },
+            { jp: "3冊くらい読む。", kana: "さんさつくらいよむ。", zh: "我讀大概 3 本書。", audio: "audio/sentence_25.mp3", slowAudio: "audio/slow/sentence_25.mp3" },
+            { jp: "10人くらい来た。", kana: "じゅうにんくらいきた。", zh: "大概有 10 個人來了。", audio: "audio/sentence_26.mp3", slowAudio: "audio/slow/sentence_26.mp3" },
+            { jp: "500円くらい払う。", kana: "ごひゃくえんくらいはらう。", zh: "我付大概 500 日元。", audio: "audio/sentence_27.mp3", slowAudio: "audio/slow/sentence_27.mp3" },
+            { jp: "水だけ飲む。", kana: "みずだけのむ。", zh: "我只喝水。", audio: "audio/sentence_28.mp3", slowAudio: "audio/slow/sentence_28.mp3" },
+            { jp: "友達だけ呼ぶ。", kana: "ともだちだけよぶ。", zh: "我只叫朋友。", audio: "audio/sentence_29.mp3", slowAudio: "audio/slow/sentence_29.mp3" },
+            { jp: "1個だけ食べる。", kana: "いっこだけたべる。", zh: "我只吃一個。", audio: "audio/sentence_30.mp3", slowAudio: "audio/slow/sentence_30.mp3" },
+            { jp: "1人しかいない。", kana: "ひとりしかいない。", zh: "只有一個人。", audio: "audio/sentence_31.mp3", slowAudio: "audio/slow/sentence_31.mp3" },
+            { jp: "お金しか持ってない。", kana: "おかねしかもってない。", zh: "我只有帶錢。", audio: "audio/sentence_32.mp3", slowAudio: "audio/slow/sentence_32.mp3" },
+            { jp: "昨日しか休まない。", kana: "きのうしかやすまない。", zh: "我只有昨天休息。", audio: "audio/sentence_33.mp3", slowAudio: "audio/slow/sentence_33.mp3" },
+            { jp: "犬か猫が好き？", kana: "いぬかねこがすき？", zh: "你喜歡狗還是貓？", audio: "audio/sentence_34.mp3", slowAudio: "audio/slow/sentence_34.mp3" },
+            { jp: "何か飲むよ。", kana: "なにかのむよ。", zh: "我喝點東西哦。", audio: "audio/sentence_35.mp3", slowAudio: "audio/slow/sentence_35.mp3" },
+            { jp: "誰か来たみたい。", kana: "だれかきたみたい。", zh: "好像有人來了。", audio: "audio/sentence_36.mp3", slowAudio: "audio/slow/sentence_36.mp3" },
+            { jp: "紅茶かコーヒーか水にする？", kana: "こうちゃかこーひーかみずにする？", zh: "要紅茶、咖啡還是水？", audio: "audio/sentence_37.mp3", slowAudio: "audio/slow/sentence_37.mp3" },
+            { jp: "犬か猫か鳥を飼う。", kana: "いぬかねこかとりをかう。", zh: "我養狗、貓還是鳥。", audio: "audio/sentence_38.mp3", slowAudio: "audio/slow/sentence_38.mp3" },
+            { jp: "昨日か今日か明日だ。", kana: "きのうかきょうかあしただ。", zh: "是昨天、今天還是明天。", audio: "audio/sentence_39.mp3", slowAudio: "audio/slow/sentence_39.mp3" },
+            { jp: "雨が降るよ。", kana: "あめがふるよ。", zh: "下雨了哦。", audio: "audio/sentence_40.mp3", slowAudio: "audio/slow/sentence_40.mp3" },
+            { jp: "おいしいよ。", kana: "おいしいよ。", zh: "很好吃哦。", audio: "audio/sentence_41.mp3", slowAudio: "audio/slow/sentence_41.mp3" },
+            { jp: "忘れないでよ。", kana: "わすれないでよ。", zh: "別忘記了哦。", audio: "audio/sentence_42.mp3", slowAudio: "audio/slow/sentence_42.mp3" },
+            { jp: "可愛いわ。", kana: "かわいいわ。", zh: "真可愛啊。", audio: "audio/sentence_43.mp3", slowAudio: "audio/slow/sentence_43.mp3" },
+            { jp: "遅れるわよ。", kana: "おくれるわよ。", zh: "我要晚到啦。", audio: "audio/sentence_44.mp3", slowAudio: "audio/slow/sentence_44.mp3" },
+            { jp: "晴れたわね。", kana: "はれたわね。", zh: "天氣晴了呢。", audio: "audio/sentence_45.mp3", slowAudio: "audio/slow/sentence_45.mp3" },
+            { jp: "何を食べる？", kana: "なにをたべる？", zh: "吃什麼？", audio: "audio/sentence_46.mp3", slowAudio: "audio/slow/sentence_46.mp3" },
+            { jp: "なんの本だ？", kana: "なんのほんだ？", zh: "那是什麼書？", audio: "audio/sentence_47.mp3", slowAudio: "audio/slow/sentence_47.mp3" },
+            { jp: "何が好き？", kana: "なにがすき？", zh: "你喜歡什麼？", audio: "audio/sentence_48.mp3", slowAudio: "audio/slow/sentence_48.mp3" },
+            { jp: "誰が来た？", kana: "だれがきた？", zh: "誰來了？", audio: "audio/sentence_49.mp3", slowAudio: "audio/slow/sentence_49.mp3" },
+            { jp: "どなたですか？", kana: "どなたですか？", zh: "請問你是哪位？", audio: "audio/sentence_50.mp3", slowAudio: "audio/slow/sentence_50.mp3" },
+            { jp: "誰と行くの？", kana: "だれといくの？", zh: "你和誰去？", audio: "audio/sentence_51.mp3", slowAudio: "audio/slow/sentence_51.mp3" },
+            { jp: "いつ寝る？", kana: "いつねる？", zh: "什麼時候睡覺？", audio: "audio/sentence_52.mp3", slowAudio: "audio/slow/sentence_52.mp3" },
+            { jp: "いつからだ？", kana: "いつからだ？", zh: "從什麼時候開始？", audio: "audio/sentence_53.mp3", slowAudio: "audio/slow/sentence_53.mp3" },
+            { jp: "いつ行くの？", kana: "いついくの？", zh: "什麼時候去？", audio: "audio/sentence_54.mp3", slowAudio: "audio/slow/sentence_54.mp3" },
+            { jp: "りんごいくつ？", kana: "りんごいくつ？", zh: "要幾個蘋果？", audio: "audio/sentence_55.mp3", slowAudio: "audio/slow/sentence_55.mp3" },
+            { jp: "いくつ欲しい？", kana: "いくつほしい？", zh: "想要幾個？", audio: "audio/sentence_56.mp3", slowAudio: "audio/slow/sentence_56.mp3" },
+            { jp: "何歳いくつだ？", kana: "なんさいいくつだ？", zh: "幾歲了？", audio: "audio/sentence_57.mp3", slowAudio: "audio/slow/sentence_57.mp3" },
+            { jp: "これいくら？", kana: "これいくら？", zh: "這個多少錢？", audio: "audio/sentence_58.mp3", slowAudio: "audio/slow/sentence_58.mp3" },
+            { jp: "いくら払うの？", kana: "いくらはらうの？", zh: "要付多少錢？", audio: "audio/sentence_59.mp3", slowAudio: "audio/slow/sentence_59.mp3" },
+            { jp: "いくらかかる？", kana: "いくらかかる？", zh: "要花多少錢？", audio: "audio/sentence_60.mp3", slowAudio: "audio/slow/sentence_60.mp3" },
+            { jp: "どう思う？", kana: "どうおもう？", zh: "你怎麼想？", audio: "audio/sentence_61.mp3", slowAudio: "audio/slow/sentence_61.mp3" },
+            { jp: "お茶いかが？", kana: "おちゃいかが？", zh: "茶怎麼樣？", audio: "audio/sentence_62.mp3", slowAudio: "audio/slow/sentence_62.mp3" },
+            { jp: "どうするの？", kana: "どうするの？", zh: "你要怎麼做？", audio: "audio/sentence_63.mp3", slowAudio: "audio/slow/sentence_63.mp3" },
+            { jp: "どんな人？", kana: "どんなひと？", zh: "什麼樣的人？", audio: "audio/sentence_64.mp3", slowAudio: "audio/slow/sentence_64.mp3" },
+            { jp: "どんな味だ？", kana: "どんなあじだ？", zh: "什麼味道？", audio: "audio/sentence_65.mp3", slowAudio: "audio/slow/sentence_65.mp3" },
+            { jp: "どんな服着る？", kana: "どんなふくきる？", zh: "穿什麼樣的衣服？", audio: "audio/sentence_66.mp3", slowAudio: "audio/slow/sentence_66.mp3" },
+            { jp: "どのぐらい待つ？", kana: "どのぐらいまつ？", zh: "要等多久？", audio: "audio/sentence_67.mp3", slowAudio: "audio/slow/sentence_67.mp3" },
+            { jp: "どれぐらい遠い？", kana: "どれぐらいとおい？", zh: "有多遠？", audio: "audio/sentence_68.mp3", slowAudio: "audio/slow/sentence_68.mp3" },
+            { jp: "どのぐらいある？", kana: "どのぐらいある？", zh: "有多少？", audio: "audio/sentence_69.mp3", slowAudio: "audio/slow/sentence_69.mp3" },
+            { jp: "なぜ遅れる？", kana: "なぜおくれる？", zh: "為什麼會晚到？", audio: "audio/sentence_70.mp3", slowAudio: "audio/slow/sentence_70.mp3" },
+            { jp: "どうして泣くの？", kana: "どうしてなくの？", zh: "為什麼哭？", audio: "audio/sentence_71.mp3", slowAudio: "audio/slow/sentence_71.mp3" },
+            { jp: "なぜ行くんだ？", kana: "なぜいくんだ？", zh: "為什麼要去？", audio: "audio/sentence_72.mp3", slowAudio: "audio/slow/sentence_72.mp3" },
+            { jp: "何か食べる？", kana: "なにかたべる？", zh: "吃點東西嗎？", audio: "audio/sentence_73.mp3", slowAudio: "audio/slow/sentence_73.mp3" },
+            { jp: "誰かいるよ。", kana: "だれかいるよ。", zh: "有人在哦。", audio: "audio/sentence_74.mp3", slowAudio: "audio/slow/sentence_74.mp3" },
+            { jp: "どこかへ行く。", kana: "どこかへいく。", zh: "去某個地方。", audio: "audio/sentence_75.mp3", slowAudio: "audio/slow/sentence_75.mp3" },
+            { jp: "何も見えない。", kana: "なにもみえない。", zh: "什麼也看不見。", audio: "audio/sentence_76.mp3", slowAudio: "audio/slow/sentence_76.mp3" },
+            { jp: "誰も知らない。", kana: "だれもしらない。", zh: "沒人知道。", audio: "audio/sentence_77.mp3", slowAudio: "audio/slow/sentence_77.mp3" },
+            { jp: "どこへも行かない。", kana: "どこへもいかない。", zh: "哪裡都不去。", audio: "audio/sentence_78.mp3", slowAudio: "audio/slow/sentence_78.mp3" },
+            { jp: "石で家を建てる。", kana: "いしでいえをたてる。", zh: "我用石頭蓋房子。", audio: "audio/sentence_79.mp3", slowAudio: "audio/slow/sentence_79.mp3" },
+            { jp: "雨で中止だよ。", kana: "あめでちゅうしだよ。", zh: "因為下雨，所以取消了哦。", audio: "audio/sentence_80.mp3", slowAudio: "audio/slow/sentence_80.mp3" },
+            { jp: "病気で休む。", kana: "びょうきでやすむ。", zh: "因為生病所以休息。", audio: "audio/sentence_81.mp3", slowAudio: "audio/slow/sentence_81.mp3" },
+            { jp: "忙しくて寝れない。", kana: "いそがしくてねれない。", zh: "因為太忙了，睡不著。", audio: "audio/sentence_82.mp3", slowAudio: "audio/slow/sentence_82.mp3" },
+            { jp: "3人で100円だ。", kana: "さんにんでひゃくえんだ。", zh: "3 個人共 100 日元。", audio: "audio/sentence_83.mp3", slowAudio: "audio/slow/sentence_83.mp3" },
+            { jp: "一日で2冊読む。", kana: "いちにちでにさつよむ。", zh: "我一天讀 2 本書。", audio: "audio/sentence_84.mp3", slowAudio: "audio/slow/sentence_84.mp3" },
+            { jp: "5個で500円だよ。", kana: "ごこでごひゃくえんだよ。", zh: "5 個 500 日元哦。", audio: "audio/sentence_85.mp3", slowAudio: "audio/slow/sentence_85.mp3" },
+            { jp: "学校へ行く。", kana: "がっこうへいく。", zh: "我去學校。", audio: "audio/sentence_86.mp3", slowAudio: "audio/slow/sentence_86.mp3" },
+            { jp: "海へ走った。", kana: "うみへはしった。", zh: "我跑到海邊。", audio: "audio/sentence_87.mp3", slowAudio: "audio/slow/sentence_87.mp3" },
+            { jp: "駅へ急ぐよ。", kana: "えきへいそぐよ。", zh: "我趕緊去車站哦。", audio: "audio/sentence_88.mp3", slowAudio: "audio/slow/sentence_88.mp3" },
+            { jp: "公園へ遊びに行く。", kana: "こうえんへあそびにいく。", zh: "我去公園玩。", audio: "audio/sentence_89.mp3", slowAudio: "audio/slow/sentence_89.mp3" },
+            { jp: "店へ買い物へ出る。", kana: "みせへかいものへでる。", zh: "我去商店買東西。", audio: "audio/sentence_90.mp3", slowAudio: "audio/slow/sentence_90.mp3" },
+            { jp: "友達へ会いに行く。", kana: "ともだちへあいにいく。", zh: "我去見朋友。", audio: "audio/sentence_91.mp3", slowAudio: "audio/slow/sentence_91.mp3" },
+            { jp: "犬と猫がいる。", kana: "いぬとねこがいる。", zh: "有狗和貓。", audio: "audio/sentence_92.mp3", slowAudio: "audio/slow/sentence_92.mp3" },
+            { jp: "りんごとみかんを買う。", kana: "りんごとみかんをかう。", zh: "我買蘋果和橘子。", audio: "audio/sentence_93.mp3", slowAudio: "audio/slow/sentence_93.mp3" },
+            { jp: "母と父が来た。", kana: "ははとちちがきた。", zh: "爸爸和媽媽來了。", audio: "audio/sentence_94.mp3", slowAudio: "audio/slow/sentence_94.mp3" },
+            { jp: "友達と遊ぶ。", kana: "ともだちとあそぶ。", zh: "我和朋友一起玩。", audio: "audio/sentence_95.mp3", slowAudio: "audio/slow/sentence_95.mp3" },
+            { jp: "姉とご飯食べる。", kana: "あねとごはんたべる。", zh: "我和姐姐一起吃飯。", audio: "audio/sentence_96.mp3", slowAudio: "audio/slow/sentence_96.mp3" },
+            { jp: "父と散歩した。", kana: "ちちとさんぽした。", zh: "我和爸爸一起散步。", audio: "audio/sentence_97.mp3", slowAudio: "audio/slow/sentence_97.mp3" },
+            { jp: "先生と話す。", kana: "せんせいとはなす。", zh: "我和老師說話。", audio: "audio/sentence_98.mp3", slowAudio: "audio/slow/sentence_98.mp3" },
+            { jp: "友達と会った。", kana: "ともだちとあった。", zh: "我和朋友見面了。", audio: "audio/sentence_99.mp3", slowAudio: "audio/slow/sentence_99.mp3" },
+            { jp: "母と電話する。", kana: "ははとでんわする。", zh: "我和媽媽打電話。", audio: "audio/sentence_100.mp3", slowAudio: "audio/slow/sentence_100.mp3" }
+        ];
+
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        function renderSentences(page) {
+            const container = document.getElementById("sentences");
+            container.innerHTML = "";
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedSentences = sentences.slice(start, end);
+
+            paginatedSentences.forEach(sentence => {
+                const div = document.createElement("div");
+                div.className = "sentence";
+                div.innerHTML = `
+                    <div class="text">
+                        <div class="jp">${sentence.jp}</div>
+                        <div class="zh">${sentence.zh}</div>
+                        <div class="kana">${sentence.kana}</div>
+                    </div>
+                    <div class="buttons">
+                        <button class="play-btn" onclick="playAudio('${sentence.audio}')">正常播放</button>
+                        <button class="slow-btn" onclick="playAudio('${sentence.slowAudio}')">慢速播放</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            renderPagination();
+        }
+
+        function playAudio(url) {
+            const audio = new Audio(url);
+            audio.play().catch(error => console.log("播放失敗:", error));
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(sentences.length / itemsPerPage);
+            const pagination = document.getElementById("pagination");
+            pagination.innerHTML = "";
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement("button");
+                button.textContent = i;
+                button.disabled = i === currentPage;
+                button.onclick = () => {
+                    currentPage = i;
+                    renderSentences(currentPage);
+                };
+                pagination.appendChild(button);
+            }
+        }
+
+        // 頁面載入時顯示第一頁
+        renderSentences(currentPage);
+    </script>
+</body>
+</html>
